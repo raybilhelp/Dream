@@ -16,9 +16,10 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// Global notification function
+// Global notify for HTML buttons
 window.notify = (msg, col = "#00e5ff") => {
     const t = document.getElementById('notification-toast');
+    if(!t) return;
     t.innerText = msg; t.style.borderColor = col;
     t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000);
 };
@@ -49,12 +50,10 @@ onAuthStateChanged(auth, async (user) => {
                     status: "free", expiry: 0, createdAt: serverTimestamp() 
                 });
             } else if (snap.data().uid !== user.uid) {
-                // Security check: If someone else owns the ID, regenerate
                 localStorage.removeItem('mk_device_id');
                 location.reload();
             }
         } catch (e) {
-            // Permission error handled by regenerating ID
             localStorage.removeItem('mk_device_id');
             location.reload();
         }
@@ -74,19 +73,15 @@ async function verify() {
     
     if(snap.exists()){
         const d = snap.data();
-        const exp = d.expiry;
-        const status = d.status;
-
-        if(status === "premium" && (exp === 'lifetime' || exp > netTime)){
-            updateUI("premium", exp, netTime);
+        if(d.status === "premium" && (d.expiry === 'lifetime' || d.expiry > netTime)){
+            updateUI("premium", d.expiry, netTime);
         } else {
             updateUI("free");
-            // Premium-to-Free Only (Hard Security Logic)
-            if(status === "premium") {
+            if(d.status === "premium") {
                 try {
                     await updateDoc(userRef, { status: "free" });
                     notify("License Expired!", "#ff3131");
-                } catch (e) { console.log("Self-downgrade ready."); }
+                } catch (e) { console.log("Security enforced."); }
             }
         }
     }
@@ -118,7 +113,6 @@ function updateUI(status, exp, now) {
     }
 }
 
-// Event Listeners
 document.getElementById('verifyBtn').addEventListener('click', verify);
 document.getElementById('copyBtn').addEventListener('click', () => {
     const id = document.getElementById('displayID').innerText;
