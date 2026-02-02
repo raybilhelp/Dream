@@ -3,22 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MK ORI AI V2</title>
-    <link rel="stylesheet" href="style-base.css">
-    <link rel="stylesheet" href="style-neon.css">
+    <title>MK ORI AI V2 - PREMIUM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --neon-blue: #00e5ff; --neon-magenta: #ff00ff; --neon-green: #00ff00; --neon-red: #ff3131; --bg-black: #000; }
+        body { background-color: var(--bg-black); color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; min-height: 100vh; }
+        #notification-toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 380px; background: #111; border: 2px solid var(--neon-blue); color: white; padding: 15px; border-radius: 12px; text-align: center; z-index: 10000; transition: 0.5s; font-family: 'Orbitron'; font-size: 0.7rem; box-shadow: 0 0 15px var(--neon-blue); }
+        #notification-toast.show { top: 20px; }
+        .header-title { font-style: italic; font-weight: bold; margin-bottom: 20px; font-size: 1.2rem; text-transform: uppercase; }
+        .main-card { width: 95%; max-width: 380px; border: 2px solid var(--neon-blue); border-radius: 15px; padding: 20px; box-shadow: 0 0 15px var(--neon-blue); text-align: center; background: #000; }
+        .premium-title { color: var(--neon-magenta); font-size: 1.5rem; font-weight: bold; text-shadow: 0 0 10px var(--neon-magenta); margin-bottom: 5px; font-family: 'Orbitron'; }
+        .sub-title { font-size: 0.8rem; margin-bottom: 20px; opacity: 0.7; }
+        .neon-box { border-radius: 10px; padding: 15px; margin-bottom: 15px; background: rgba(0,0,0,0.5); }
+        .green-border { border: 2px solid var(--neon-green); box-shadow: inset 0 0 10px rgba(0,255,0,0.1); }
+        .red-border { border: 2px solid var(--neon-red); box-shadow: inset 0 0 10px rgba(255,49,49,0.1); }
+        .purple-border { border: 2px dashed var(--neon-magenta); cursor: pointer; }
+        .device-id-text { font-size: 1.1rem; font-weight: bold; color: var(--neon-blue); font-family: 'Orbitron'; margin: 10px 0; }
+        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: bold; margin-bottom: 10px; border: 1px solid #444; }
+        .info-row { display: flex; justify-content: space-between; font-size: 0.85rem; margin-top: 5px; }
+        .info-label { color: var(--neon-blue); font-weight: bold; }
+        .btn { width: 100%; padding: 14px; border-radius: 10px; font-family: 'Orbitron'; font-weight: bold; cursor: pointer; border: none; text-transform: uppercase; margin-top: 10px; transition: 0.3s; }
+        .btn-cyan { background: var(--neon-blue); color: #000; box-shadow: 0 0 15px rgba(0,229,255,0.4); }
+        .btn-magenta { background: transparent; color: var(--neon-magenta); border: 1px solid var(--neon-magenta); }
+        .features-list { text-align: left; font-size: 0.85rem; margin-top: 20px; padding-left: 20px; }
+        .features-list li { margin-bottom: 6px; list-style: none; }
+        .features-list li::before { content: "🔥"; margin-right: 10px; }
+    </style>
 </head>
 <body>
-    <div id="root"></div> <!-- সব HTML এখানে ইনজেক্ট হবে -->
 
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <div id="notification-toast">Syncing MK ORI AI...</div>
+    <div class="header-title">MK ORI AI V2</div>
 
-    <!-- আপনার ৪টি জাভাস্ক্রিপ্ট ফাইল -->
-    <script src="app-config.js"></script>
-    <script src="app-utils.js"></script>
-    <script src="app-timer.js"></script>
-    <script src="app-core.js"></script>
+    <div class="main-card">
+        <div id="uiBadge" class="status-badge">FREE STATUS</div>
+        <div class="premium-title">MK PREMUIM AI</div>
+        <div class="sub-title">Secured Global Device System</div>
+
+        <div class="neon-box purple-border" id="copyBtn">
+            <div style="font-size: 0.8rem; opacity: 0.7;">Device ID (Permanent)</div>
+            <div class="device-id-text" id="displayID">LOADING...</div>
+            <div style="font-size: 0.6rem; color: var(--neon-magenta);">[ CLICK TO COPY ID ]</div>
+        </div>
+
+        <div id="statusBox" class="neon-box red-border">
+            <div class="info-row"><span class="info-label">STATUS:</span> <span id="uiStatus" style="color:var(--neon-red)">FREE / EXPIRED</span></div>
+            <div class="info-row"><span class="info-label">EXPIRE DATE:</span> <span id="uiExpire">N/A</span></div>
+            <div class="info-row"><span class="info-label">TIME LEFT:</span> <span id="uiTimeLeft">00h : 00m</span></div>
+        </div>
+
+        <button class="btn btn-cyan" id="verifyBtn">Verify Access Status</button>
+        <button class="btn btn-magenta" onclick="notify('Contact Admin for Purchase')">Get Premium License</button>
+
+        <div class="features-list">
+            <div style="color: var(--neon-blue); font-weight: bold; margin-bottom: 8px;">🔥 VIP FEATURES</div>
+            <ul>
+                <li>100% Secure AI Predictions</li>
+                <li>VIP Market Analytics</li>
+                <li>Anti-Ban Security Layer</li>
+            </ul>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBi89t5QO6YejicqBoE-JFBBWcaaEYygFA",
+            authDomain: "tapzoearn.firebaseapp.com",
+            projectId: "tapzoearn",
+            storageBucket: "tapzoearn.firebasestorage.app",
+            messagingSenderId: "29421959058",
+            appId: "1:29421959058:web:56be0c351b82396b1d334b",
+            measurementId: "G-06V17MJMHB"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        window.notify = (msg, col = "#00e5ff") => {
+            const t = document.getElementById('notification-toast');
+            t.innerText = msg; t.style.borderColor = col;
+            t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000);
+        };
+
+        async function getNetworkTime() {
+            try {
+                const res = await fetch('https://worldtimeapi.org/api/timezone/Etc/UTC');
+                const data = await res.json();
+                return new Date(data.utc_datetime).getTime();
+            } catch(e) { return Date.now(); }
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                let deviceID = localStorage.getItem('mk_device_id');
+                if (!deviceID) {
+                    deviceID = "MK-" + Math.random().toString(36).substring(2, 10).toUpperCase();
+                    localStorage.setItem('mk_device_id', deviceID);
+                }
+                document.getElementById('displayID').innerText = deviceID;
+
+                const userRef = doc(db, "users", deviceID);
+                const snap = await getDoc(userRef);
+                if (!snap.exists()) {
+                    await setDoc(userRef, { uid: user.uid, deviceId: deviceID, status: "free", expiry: 0, createdAt: serverTimestamp() });
+                }
+                verify();
+            } else { signInAnonymously(auth); }
+        });
+
+        async function verify() {
+            const id = localStorage.getItem('mk_device_id');
+            if(!id) return;
+            const btn = document.getElementById('verifyBtn');
+            btn.disabled = true; btn.innerText = "Syncing Cloud...";
+
+            const netTime = await getNetworkTime();
+            const snap = await getDoc(doc(db, "users", id));
+            
+            if(snap.exists()){
+                const d = snap.data();
+                const exp = d.expiry;
+                if(exp === 'lifetime' || exp > netTime){
+                    updateUI("premium", exp, netTime);
+                } else {
+                    updateUI("free");
+                    if(d.status === "premium") await updateDoc(doc(db, "users", id), { status: "free" });
+                }
+            }
+            btn.disabled = false; btn.innerText = "Verify Access Status";
+        }
+
+        function updateUI(status, exp, now) {
+            const box = document.getElementById('statusBox');
+            const st = document.getElementById('uiStatus');
+            const badge = document.getElementById('uiBadge');
+            if(status === "premium") {
+                box.className = "neon-box green-border";
+                st.innerText = "ACTIVE / PREMIUM"; st.style.color = "var(--neon-green)";
+                badge.innerText = "PREMIUM ACTIVE"; badge.style.borderColor = "var(--neon-green)";
+                if(exp === 'lifetime') {
+                    document.getElementById('uiExpire').innerText = "Lifetime";
+                    document.getElementById('uiTimeLeft').innerText = "Infinity";
+                } else {
+                    const diff = exp - now;
+                    document.getElementById('uiExpire').innerText = new Date(exp).toLocaleDateString();
+                    document.getElementById('uiTimeLeft').innerText = Math.floor(diff/(1000*60*60)) + "h : " + Math.floor((diff%(1000*60*60))/(1000*60)) + "m";
+                }
+            } else {
+                box.className = "neon-box red-border";
+                st.innerText = "FREE / EXPIRED"; st.style.color = "var(--neon-red)";
+                badge.innerText = "FREE STATUS"; badge.style.borderColor = "#444";
+                document.getElementById('uiExpire').innerText = "N/A";
+                document.getElementById('uiTimeLeft').innerText = "00h : 00m";
+            }
+        }
+
+        document.getElementById('verifyBtn').addEventListener('click', verify);
+        document.getElementById('copyBtn').addEventListener('click', () => {
+            const id = document.getElementById('displayID').innerText;
+            const el = document.createElement('textarea'); el.value = id; document.body.appendChild(el);
+            el.select(); document.execCommand('copy'); document.body.removeChild(el);
+            notify("ID Copied: " + id);
+        });
+    </script>
 </body>
 </html>
