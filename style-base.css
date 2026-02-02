@@ -1,0 +1,5 @@
+:root { --bg: #000; --text: #fff; }
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; padding: 20px; margin: 0; }
+.main-card { width: 100%; max-width: 380px; border-radius: 15px; padding: 20px; text-align: center; background: #000; }
+.status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; margin-bottom: 10px; border: 1px solid #444; }
+.info-row { display: flex; justify-content: space-between; font-size: 0.85rem; margin-top: 5px; }
